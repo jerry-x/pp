@@ -1,0 +1,60 @@
+#je_login.py
+"""
+check user's login behavior and print the welcome info,meanwhile supply new user register function with sqlite3 db,
+after import the module,use je_login.login() to recall the login or reigster function
+"""
+import time,sqlite3	
+def welcome(name):
+	"""
+	the input para is sting(such as name),the output is  the welocome info
+	"""
+	sentence ='welcome login bigdata system,'+name
+	tradename='Registerd by jerry'
+	screen_width=80
+	text_width=len(sentence)
+	box_width=text_width+6
+	left_margin=(screen_width - box_width) //2
+	print  
+	print ' '*left_margin + '+' + '-' * (box_width-6) + '+'
+	print ' '*left_margin + '|' + ' ' * text_width    + '|'
+	print ' '*left_margin + '|' +       sentence      + '|'
+	print ' '*left_margin + '|' + ' ' * text_width    + '|'
+	print ' '*left_margin + '|' + ' '*((len(sentence)-len(tradename))//2)+tradename+' '*(len(sentence)-len(tradename)-((len(sentence)-len(	tradename))//2))+ '|' 
+	print ' '*left_margin + '|' +' ' *text_width      +'|'
+	print ' '*left_margin + '|'+ ' '*(((len(sentence)-len(tradename))//2)-4)+time.strftime('%Y-%m-%d,%H:%M:%S,%a',time.localtime())+' '*((len(sentence)-len(tradename)-((len(sentence)-len(	tradename))//2))-1)+ '|'
+	print ' '*left_margin + '+' + '-' * (box_width-6) + '+'
+def login():
+	"""
+	use this funtion to examine the user & password,or register new user
+	"""
+	u=raw_input('intput username:')	
+	conn=sqlite3.connect(r'D:\python\db\user.db')
+	curs=conn.cursor()
+	sql1="select name, passwd from examine_d01 where name = '%s' " %u.lower()
+	curs.execute(sql1)
+	k=curs.fetchall()
+	x=0
+	try:
+		t=k[0]
+		u.lower()==t[0]		
+		while x<3:
+			p=raw_input('input password:')
+			if t[1]==p:
+				welcome(u)
+				break
+			else:
+				print "wrong password,you have "+repr(2-x)+" time(s) to try"
+				x+=1
+	except:
+		print "user not registered yet"
+		y=raw_input("enter Y to regiter new user or enter N to quit")
+		if y.lower()=='y':
+			u1=raw_input("input your username here,not more than 8 characters:")
+			p1=raw_input("input your username here,not more than 10 characters:")
+			sql2="insert into examine_d01 values('%s','%s','%s','%s')" %(u1,p1,'null','null')
+			curs.execute(sql2)
+			conn.commit()
+			welcome(u1)
+		else:
+			print "quit complete"
+	finally:conn.close()
